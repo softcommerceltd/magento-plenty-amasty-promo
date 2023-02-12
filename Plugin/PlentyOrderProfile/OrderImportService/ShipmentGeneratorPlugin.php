@@ -7,13 +7,13 @@ namespace SoftCommerce\PlentyAmastyPromo\Plugin\PlentyOrderProfile\OrderImportSe
 use Magento\Framework\Exception\LocalizedException;
 use Magento\InventorySalesApi\Model\GetSkuFromOrderItemInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
-use SoftCommerce\PlentyOrderProfile\Model\OrderImportService\Processor\Shipment;
+use SoftCommerce\PlentyOrderProfile\Model\OrderImportService\Generator\Shipment;
 
 /**
- * Class ShipmentProcessorPlugin used to intercept shipment
- * import process in order to handle gift items.
+ * Class ShipmentGeneratorPlugin used to intercept shipment
+ * import generator in order to handle gift items.
  */
-class ShipmentProcessorPlugin
+class ShipmentGeneratorPlugin
 {
     /**
      * @var GetSkuFromOrderItemInterface
@@ -38,17 +38,20 @@ class ShipmentProcessorPlugin
      * @return void
      * @throws LocalizedException
      */
-    public function beforeBuildRequest(Shipment $subject): void
+    public function beforeGenerate(Shipment $subject): void
     {
         $this->qtyRequest = [];
-        foreach ($subject->getContext()->getSalesOrder()->getAllItems() as $orderItem) {
-            if ($orderItem->getIsVirtual() || $orderItem->getLockedDoShip() || !$orderItem->canShip()) {
+        foreach ($subject->getContext()->getSalesOrder()->getAllItems() as $item) {
+            if ($item->getIsVirtual() || $item->getLockedDoShip() || !$item->canShip()) {
                 continue;
             }
 
-            $item = $orderItem->isDummy(true) ? $orderItem->getParentItem() : $orderItem;
+            if ($item->isDummy(true)) {
+                $item =  $item->getParentItem();
+            }
+
             $sku = $this->getSkuFromOrderItem->execute($item);
-            $qty = (float) $orderItem->getSimpleQtyToShip();
+            $qty = (float) $item->getSimpleQtyToShip();
             $this->qtyRequest[$sku] = $qty + ($this->qtyRequest[$sku] ?? 0);
         }
     }
