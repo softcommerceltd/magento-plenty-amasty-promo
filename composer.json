@@ -2,8 +2,8 @@
     "name": "softcommerce/module-plenty-amasty-promo",
     "description": "SoftCommerce -- PlentyMarkets - Amasty Promo Module.",
     "require": {
-        "php": "~7.4.0||~8.0.0||~8.1.0",
-        "amasty/rewards": "*",
+        "php": "~8.0.0||~8.1.0||~8.2.0",
+        "amasty/promo": "*",
         "softcommerce/module-plenty-order-profile": "1.4.*"
     },
     "type": "magento2-module",
@@ -17,5 +17,5 @@
             "SoftCommerce\\PlentyAmastyPromo\\": ""
         }
     },
-    "version": "1.0.1"
+    "version": "1.0.2"
 }
