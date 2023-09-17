@@ -9,8 +9,6 @@ declare(strict_types=1);
 namespace SoftCommerce\PlentyAmastyPromo\Plugin\PlentyOrderProfile\OrderImportService;
 
 use Magento\Framework\Exception\LocalizedException;
-use Magento\InventorySalesApi\Model\GetSkuFromOrderItemInterface;
-use Magento\Sales\Api\Data\OrderItemInterface;
 use SoftCommerce\PlentyOrderProfile\Model\OrderImportService\Generator\Shipment;
 
 /**
@@ -20,22 +18,9 @@ use SoftCommerce\PlentyOrderProfile\Model\OrderImportService\Generator\Shipment;
 class ShipmentGeneratorPlugin
 {
     /**
-     * @var GetSkuFromOrderItemInterface
-     */
-    private GetSkuFromOrderItemInterface $getSkuFromOrderItem;
-
-    /**
      * @var array
      */
     private array $qtyRequest = [];
-
-    /**
-     * @param GetSkuFromOrderItemInterface $getSkuFromOrderItem
-     */
-    public function __construct(GetSkuFromOrderItemInterface $getSkuFromOrderItem)
-    {
-        $this->getSkuFromOrderItem = $getSkuFromOrderItem;
-    }
 
     /**
      * @param Shipment $subject
@@ -44,31 +29,19 @@ class ShipmentGeneratorPlugin
      */
     public function beforeGenerate(Shipment $subject): void
     {
-        $this->qtyRequest = [];
-        foreach ($subject->getContext()->getSalesOrder()->getAllItems() as $item) {
-            if ($item->getIsVirtual() || $item->getLockedDoShip() || !$item->canShip()) {
-                continue;
-            }
-
-            if ($item->isDummy(true)) {
-                $item =  $item->getParentItem();
-            }
-
-            $sku = $this->getSkuFromOrderItem->execute($item);
-            $qty = (float) $item->getSimpleQtyToShip();
-            $this->qtyRequest[$sku] = $qty + ($this->qtyRequest[$sku] ?? 0);
-        }
+        $sku = $subject->getOrderItemSku();
+        $qty = $subject->getOrderItemQty();
+        $this->qtyRequest[$sku] = $qty + ($this->qtyRequest[$sku] ?? 0);
     }
 
     /**
      * @param Shipment $subject
      * @param $result
-     * @param OrderItemInterface $item
      * @return float
+     * @throws LocalizedException
      */
-    public function afterGetQtyToShip(Shipment $subject, $result, OrderItemInterface $item): float
+    public function afterGetOrderItemQty(Shipment $subject, $result): float
     {
-        $sku = $this->getSkuFromOrderItem->execute($item);
-        return $this->qtyRequest[$sku] ?? $result;
+        return $this->qtyRequest[$subject->getOrderItemSku()] ?? $result;
     }
 }
