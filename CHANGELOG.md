@@ -1,5 +1,8 @@
 ## Changelog
 
+### Version 1.0.4
+- **Enhancement**: Removed composer requirements for `amasty/promo`
+
 ### Version 1.0.3
 - **Compatibility**: Compatibility with `SoftCommerce_PlentyOrderProfile` version 1.6.6.
 
