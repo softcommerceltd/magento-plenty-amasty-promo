@@ -1,5 +1,8 @@
 ## Changelog
 
+### Version 1.0.5
+- **Compatibility**: Compatibility with PHP 8.3
+
 ### Version 1.0.4
 - **Enhancement**: Removed composer requirements for `amasty/promo`
 
